@@ -20,30 +20,55 @@ class UsersController < ApplicationController
   end
 
   # POST /users or /users.json
+  # def create
+  #   @user = User.new(user_params)
+
+  #   respond_to do |format|
+  #     if @user.save
+  #       format.html { redirect_to user_url(@user), notice: "User was successfully created." }
+  #       format.json { render :show, status: :created, location: @user }
+  #     else
+  #       format.html { render :new, status: :unprocessable_entity }
+  #       format.json { render json: @user.errors, status: :unprocessable_entity }
+  #     end
+  #   end
+  # end
+
   def create
     @user = User.new(user_params)
-
-    respond_to do |format|
-      if @user.save
-        format.html { redirect_to user_url(@user), notice: "User was successfully created." }
-        format.json { render :show, status: :created, location: @user }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @user.errors, status: :unprocessable_entity }
-      end
+    if @user.save
+      flash[:notice] = "Welcome #{@user.username}. You have joined successfully."
+      redirect_to articles_path
+    else
+      render 'new'
     end
   end
 
+  private
+  def user_params
+      params.require(:user).permit(:username, :email, :password)
+  end
+
   # PATCH/PUT /users/1 or /users/1.json
+  # def update
+  #   respond_to do |format|
+  #     if @user.update(user_params)
+  #       format.html { redirect_to user_url(@user), notice: "User was successfully updated." }
+  #       format.json { render :show, status: :ok, location: @user }
+  #     else
+  #       format.html { render :edit, status: :unprocessable_entity }
+  #       format.json { render json: @user.errors, status: :unprocessable_entity }
+  #     end
+  #   end
+  # end
+
   def update
-    respond_to do |format|
-      if @user.update(user_params)
-        format.html { redirect_to user_url(@user), notice: "User was successfully updated." }
-        format.json { render :show, status: :ok, location: @user }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @user.errors, status: :unprocessable_entity }
-      end
+    @user = User.find(params[:id])
+    if @user.update(user_params)
+      flash[:notice] = "Your account information was succesfully updated"
+      redirect_to articles_path
+    else 
+      render 'edit'
     end
   end
 
