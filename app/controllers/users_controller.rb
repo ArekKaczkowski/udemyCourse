@@ -1,5 +1,14 @@
 class UsersController < ApplicationController
   before_action :set_user, only: %i[ show edit update destroy ]
+  before_action :require_user, only: [:edit, :update]
+  before_action :require_same_user, only: [:edit, :update]
+
+  
+  def update
+    @user = User.find(params[:id])
+    @user.update(user_params)
+    render @user
+  end
 
   # GET /users or /users.json
   def index
@@ -15,9 +24,6 @@ class UsersController < ApplicationController
     @user = User.new
   end
 
-  # GET /users/1/edit
-  def edit
-  end
 
   # POST /users or /users.json
   # def create
@@ -44,7 +50,6 @@ class UsersController < ApplicationController
     end
   end
 
-  private
   def user_params
       params.require(:user).permit(:username, :email, :password)
   end
@@ -62,15 +67,6 @@ class UsersController < ApplicationController
   #   end
   # end
 
-  def update
-    @user = User.find(params[:id])
-    if @user.update(user_params)
-      flash[:notice] = "Your account information was succesfully updated"
-      redirect_to articles_path
-    else 
-      render 'edit'
-    end
-  end
 
   # DELETE /users/1 or /users/1.json
   def destroy
@@ -86,6 +82,12 @@ class UsersController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_user
       @user = User.find(params[:id])
+    end
+
+    def require_same_user
+      if current_user != @user
+        render json: @user     
+      end 
     end
 
     # Only allow a list of trusted parameters through.
